@@ -35,7 +35,7 @@ retry 3 git -C "$SUSFS_SRC" fetch --quiet --depth 1 origin "$SUSFS_REPO_PIN" || 
 git -C "$SUSFS_SRC" checkout --quiet FETCH_HEAD
 
 log "Cloning NoMount source (maxsteeel)"
-retry 3 git clone --quiet --depth 1 https://github.com "$NOMOUNT_SRC" || die "failed to clone NoMount repo"
+retry 3 git clone --quiet --depth 1 https://github.com/maxsteeel/nomount.git "$NOMOUNT_SRC" || die "failed to clone NoMount repo"
 
 FRAGMENT_DIR="zincore_fragments"
 FRAGMENT_FILE="${FRAGMENT_DIR}/kernelsu.config"
