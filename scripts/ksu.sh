@@ -108,7 +108,7 @@ log "Installing NoMount kernel patches"
 bash "${NOMOUNT_SRC}/kernel/setup.sh"
 sed -i 's/vfs_getattr_nosec(&info->r_path, stat)/vfs_getattr_nosec(\&info->r_path, stat, STATX_BASIC_STATS, AT_STATX_SYNC_AS_STAT)/g' fs/nomount/nomount.c
 sed -i 's/int nm_getattr(struct vfsmount \*mnt, struct dentry \*dentry, struct kstat \*stat)/int nm_getattr(const struct path *path, struct kstat *stat, u32 request_mask, unsigned int flags)/g' fs/nomount/nomount.c
-sed -i 's/d_backing_inode(dentry)/d_backing_inode(path->dentry)/g' fs/nomount/nomount.c
+sed -i '/int nm_getattr(const struct path \*path/,/{/ s/{/{\n\tstruct dentry *dentry = path->dentry;/' fs/nomount/nomount.c
 
 # Static symbol exports required by BakaSU
 log "Patching static symbol exports required by BakaSU"
