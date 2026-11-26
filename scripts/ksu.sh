@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
 DEVICE="${1:?Usage: ksu.sh <device>}"
@@ -19,6 +19,7 @@ KERNEL_VERSION=$(read_field kernel_version)
 WORKDIR="$(pwd)"
 KSU_SRC="${WORKDIR}/.zincore_deps/bakasu"
 SUSFS_SRC="${WORKDIR}/.zincore_deps/susfs"
+NOMOUNT_SRC="${WORKDIR}/.zincore_deps/nomount"
 mkdir -p "$(dirname "$KSU_SRC")"
 
 log "Cloning BakaSU (pinned to ${KSU_REPO_PIN})"
@@ -32,6 +33,9 @@ git init --quiet "$SUSFS_SRC"
 git -C "$SUSFS_SRC" remote add origin "$SUSFS_REPO_URL"
 retry 3 git -C "$SUSFS_SRC" fetch --quiet --depth 1 origin "$SUSFS_REPO_PIN" || die "failed to fetch SuSFS pin ${SUSFS_REPO_PIN} from ${SUSFS_REPO_URL}"
 git -C "$SUSFS_SRC" checkout --quiet FETCH_HEAD
+
+log "Cloning NoMount source (maxsteeel)"
+retry 3 git clone --quiet --depth 1 https://github.com "$NOMOUNT_SRC" || die "failed to clone NoMount repo"
 
 FRAGMENT_DIR="zincore_fragments"
 FRAGMENT_FILE="${FRAGMENT_DIR}/kernelsu.config"
@@ -101,7 +105,7 @@ grep -o "Current susfs patch version:[0-9.]*" /tmp/zincore_susfs_hook.log | head
 
 # Integrating NoMount source (built-in)
 log "Installing NoMount kernel patches"
-curl -sSL https://githubusercontent.com | bash -
+bash "${NOMOUNT_SRC}/kernel/setup.sh"
 
 # Static symbol exports required by BakaSU
 log "Patching static symbol exports required by BakaSU"
