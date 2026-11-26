@@ -99,6 +99,10 @@ bash "${SUSFS_SRC}/Patches/susfs_inline_hook_patches.sh" | tee /tmp/zincore_susf
 grep -o "Current susfs patch version:[0-9.]*" /tmp/zincore_susfs_hook.log | head -1 | sed 's/Current susfs patch version://' > "${WORKDIR}/${DEVICE}-susfs-version.txt" || true
 [ -s "${WORKDIR}/${DEVICE}-susfs-version.txt" ] || die "SuSFS hook script ran but no patch version was found in /tmp/zincore_susfs_hook.log, the version grep may be out of date"
 
+# Integrating NoMount source (built-in)
+log "Installing NoMount kernel patches"
+curl -sSL https://githubusercontent.com | bash -
+
 # Static symbol exports required by BakaSU
 log "Patching static symbol exports required by BakaSU"
 
@@ -149,6 +153,7 @@ fragment_add "$FRAGMENT_FILE" "-e CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS"
 fragment_add "$FRAGMENT_FILE" "-e CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG"
 fragment_add "$FRAGMENT_FILE" "-e CONFIG_KSU_SUSFS_OPEN_REDIRECT"
 fragment_add "$FRAGMENT_FILE" "-e CONFIG_KSU_SUSFS_SUS_MAP"
+fragment_add "$FRAGMENT_FILE" "-e CONFIG_NOMOUNT"
 
 # THREAD_INFO_IN_TASK is conditionally required
 if grep -q "THREAD_INFO_IN_TASK" "drivers/kernelsu/Kconfig" 2>/dev/null; then
