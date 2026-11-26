@@ -52,7 +52,7 @@ jobs:
           INCLUDE="[]"
           for f in "${FILES[@]}"; do
             DEVICE_KEY=$(jq -r 'keys[0]' "$f")
-            ENTRY=$(jq -c --arg d "$DEVICE_KEY" '[.[$d].variants[] | {device: $d, variant: .}]' "$f")
+            ENTRY=$(jq -c --arg d "$DEVICE_KEY" '[.[$d].variants[] | select(. == "ksu") | {device: $d, variant: .}]' "$f")
             INCLUDE=$(jq -c -n --argjson a "$INCLUDE" --argjson b "$ENTRY" '$a + $b')
           done
 
